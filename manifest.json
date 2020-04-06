@@ -1,0 +1,17 @@
+{
+  "description": "Zillow's missing hide feature",
+  "manifest_version": 2,
+  "name": "Zillow hide",
+  "version": "1.0",
+  "permissions": [
+    "webRequest", "webRequestBlocking", "*://*.zillow.com/*"
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "strict_min_version": "57.0a1"
+    }
+  }
+}
