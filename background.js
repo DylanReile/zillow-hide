@@ -26,7 +26,7 @@ function listener(details) {
     }
 
     let json = JSON.parse(str);
-    console.log(json);
+    //browser.tabs.sendMessage('howdy logger');
     let scrubbedJson = scrubHiddenListings(json);
     str = JSON.stringify(scrubbedJson);
 
