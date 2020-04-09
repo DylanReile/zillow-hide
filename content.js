@@ -1,6 +1,6 @@
 console.log('content script injected');
-//browser.runtime.onMessage(logger);
+browser.runtime.onMessage.addListener(logger);
 
 function logger(msg) {
-  console.log(msg);
+  console.log(msg)
 }

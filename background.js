@@ -26,13 +26,24 @@ function listener(details) {
     }
 
     let json = JSON.parse(str);
-    //browser.tabs.sendMessage('howdy logger');
+    messageBackgroundScript(json);
     let scrubbedJson = scrubHiddenListings(json);
     str = JSON.stringify(scrubbedJson);
 
     filter.write(encoder.encode(str));
     filter.close();
   };
+}
+
+function messageBackgroundScript(msg) {
+  browser.tabs.query({
+    currentWindow: true,
+    active: true
+  }).then((tabs) => {
+    for(let tab of tabs) {
+      browser.tabs.sendMessage(tab.id, msg)
+    }
+  })
 }
 
 function scrubHiddenListings(json) {
