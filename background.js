@@ -55,6 +55,9 @@ function scrubHiddenListings(json) {
 
 browser.webRequest.onBeforeRequest.addListener(
   listener,
-  {urls: ["*://*.zillow.com/*"], types: ["xmlhttprequest"]},
+  {
+    urls: ["*://*.zillow.com/search/GetSearchPageState.htm*"],
+    types: ["xmlhttprequest"]
+  },
   ["blocking"]
 );
