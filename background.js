@@ -1,7 +1,7 @@
 console.log('script registered');
 alert('howdy');
 
-let hiddenZpids = ["2097205534", "23262737"];
+let hiddenZpids = ["2097205534", "23262737", "67037838"];
 
 function listener(details) {
   let filter = browser.webRequest.filterResponseData(details.requestId);
@@ -25,11 +25,10 @@ function listener(details) {
       }
     }
 
-    let json = JSON.parse(str);
-    messageBackgroundScript(json);
-    let scrubbedJson = scrubHiddenListings(json);
-    str = JSON.stringify(scrubbedJson);
+    let scrubbedJson = scrubHiddenListings(JSON.parse(str));
+    messageBackgroundScript(scrubbedJson);
 
+    str = JSON.stringify(scrubbedJson);
     filter.write(encoder.encode(str));
     filter.close();
   };
@@ -47,6 +46,9 @@ function messageBackgroundScript(msg) {
 }
 
 function scrubHiddenListings(json) {
+  json.searchList.hiddenResultCount = json.searchResults.listResults.reduce((count, e) => {
+    return hiddenZpids.includes(e.zpid) ? count += 1 : count
+  }, 0);
   json.searchResults.listResults = json.searchResults.listResults.filter(e => !hiddenZpids.includes(e.zpid));
   json.searchResults.mapResults = json.searchResults.mapResults.filter(e => !hiddenZpids.includes(e.zpid));
   json.searchList.totalResultCount = json.searchResults.listResults.length;

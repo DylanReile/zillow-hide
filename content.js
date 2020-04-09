@@ -1,6 +1,6 @@
 console.log('content script injected');
-browser.runtime.onMessage.addListener(logger);
+browser.runtime.onMessage.addListener(processListings);
 
-function logger(msg) {
-  console.log(msg)
+function processListings(scrubbedJson) {
+  console.log(scrubbedJson);
 }
