@@ -2,5 +2,7 @@ console.log('content script injected');
 browser.runtime.onMessage.addListener(processListings);
 
 function processListings(listings) {
-  console.log(listings.hiddenCount);
+  document
+  .querySelector('.result-count')
+  .innerHTML = `${listings.totalCount} results (${listings.hiddenCount} hidden)`;
 }

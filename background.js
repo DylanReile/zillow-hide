@@ -45,18 +45,24 @@ function messageContentScript(msg) {
 
 function scrubHiddenListings(json) {
   if(json.searchResults.listResults) {
-    json.searchList.hiddenResultCount = json.searchResults.listResults.reduce((count, e) => {
-      return hiddenZpids.includes(e.zpid) ? count += 1 : count
-    }, 0);
-    messageContentScript({hiddenCount: json.searchList.hiddenResultCount});
-
+    updatePageResultCount(json.searchResults.listResults);
     json.searchResults.listResults = json.searchResults.listResults.filter(e => !hiddenZpids.includes(e.zpid));
-    json.searchList.totalResultCount = json.searchResults.listResults.length;
   }
 
   json.searchResults.mapResults = json.searchResults.mapResults.filter(e => !hiddenZpids.includes(e.zpid));
 
   return json;
+}
+
+function updatePageResultCount(listResults) {
+  let hiddenResultCount = listResults.reduce((count, e) => {
+    return hiddenZpids.includes(e.zpid) ? count += 1 : count
+  }, 0);
+
+  messageContentScript({
+    totalCount: listResults.length,
+    hiddenCount: hiddenResultCount
+  });
 }
 
 browser.webRequest.onBeforeRequest.addListener(
