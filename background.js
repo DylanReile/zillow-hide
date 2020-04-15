@@ -23,10 +23,12 @@ function listener(details) {
         str += decoder.decode(data[i], {stream});
       }
     }
+    let json = JSON.parse(str);
 
-    let scrubbedJson = scrubHiddenListings(JSON.parse(str));
-
+    updatePageResultCount(json.searchResults.listResults);
+    let scrubbedJson = scrubHiddenListings(json);
     str = JSON.stringify(scrubbedJson);
+
     filter.write(encoder.encode(str));
     filter.close();
   };
@@ -45,11 +47,16 @@ function messageContentScript(msg) {
 
 function scrubHiddenListings(json) {
   if(json.searchResults.listResults) {
-    updatePageResultCount(json.searchResults.listResults);
-    json.searchResults.listResults = json.searchResults.listResults.filter(e => !hiddenZpids.includes(e.zpid));
+    json.searchResults.listResults = json
+      .searchResults
+      .listResults
+      .filter(e => !hiddenZpids.includes(e.zpid));
   }
 
-  json.searchResults.mapResults = json.searchResults.mapResults.filter(e => !hiddenZpids.includes(e.zpid));
+  json.searchResults.mapResults = json
+    .searchResults
+    .mapResults
+    .filter(e => !hiddenZpids.includes(e.zpid));
 
   return json;
 }
