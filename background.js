@@ -1,6 +1,8 @@
 alert('background script registered');
 
 let hiddenZpids = ["2097205534", "23262737", "67037838"];
+//browser.storage.local.set({'hiddenZpids': hiddenZpids});
+//browser.storage.local.get('hiddenZpids').then(obj => messageContentScript({type: 'log', data: obj}));
 
 function listener(details) {
   let filter = browser.webRequest.filterResponseData(details.requestId);
@@ -34,13 +36,13 @@ function listener(details) {
   };
 }
 
-function messageContentScript(msg) {
+function contentAction(command) {
   browser.tabs.query({
     currentWindow: true,
     active: true
   }).then((tabs) => {
     for(let tab of tabs) {
-      browser.tabs.sendMessage(tab.id, msg)
+      browser.tabs.sendMessage(tab.id, command)
     }
   })
 }
@@ -66,9 +68,12 @@ function updatePageResultCount(listResults) {
     return hiddenZpids.includes(e.zpid) ? count += 1 : count
   }, 0);
 
-  messageContentScript({
-    totalCount: listResults.length,
-    hiddenCount: hiddenResultCount
+  contentAction({
+    type: 'updatePageResultCount',
+    data: {
+      totalCount: listResults.length,
+      hiddenCount: hiddenResultCount
+    }
   });
 }
 

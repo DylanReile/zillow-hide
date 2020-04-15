@@ -4,7 +4,10 @@
   "name": "Zillow hide",
   "version": "1.0",
   "permissions": [
-    "webRequest", "webRequestBlocking", "*://*.zillow.com/*"
+    "webRequest",
+    "webRequestBlocking",
+    "*://*.zillow.com/*",
+    "storage"
   ],
   "background": {
     "scripts": ["background.js"]
