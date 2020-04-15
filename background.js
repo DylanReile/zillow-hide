@@ -1,87 +1,97 @@
-alert('background script registered');
+(function() {
+  alert('background script registered');
 
-let hiddenZpids = ["2097205534", "23262737", "67037838"];
-//browser.storage.local.set({'hiddenZpids': hiddenZpids});
-//browser.storage.local.get('hiddenZpids').then(obj => messageContentScript({type: 'log', data: obj}));
+  //let hiddenZpids = ["2097205534", "23262737", "67037838"];
+  //browser.storage.local.set({hiddenZpids: hiddenZpids});
 
-function listener(details) {
-  let filter = browser.webRequest.filterResponseData(details.requestId);
-  let decoder = new TextDecoder("utf-8", {fatal: true});
-  let encoder = new TextEncoder();
+  browser.webRequest.onBeforeRequest.addListener(
+    listener,
+    {
+      urls: ["*://*.zillow.com/search/GetSearchPageState.htm*"],
+      types: ["xmlhttprequest"]
+    },
+    ["blocking"]
+  );
 
-  let data = [];
-  filter.ondata = event => {
-    data.push(event.data);
-  };
+  function listener(details) {
+    let filter = browser.webRequest.filterResponseData(details.requestId);
+    let decoder = new TextDecoder("utf-8", {fatal: true});
+    let encoder = new TextEncoder();
 
-  filter.onstop = event => {
-    let str = "";
-    if (data.length == 1) {
-      str = decoder.decode(data[0]);
-    }
-    else {
-      for (let i = 0; i < data.length; i++) {
-        let stream = (i == data.length - 1) ? false : true;
-        str += decoder.decode(data[i], {stream});
+    let data = [];
+    filter.ondata = event => {
+      data.push(event.data);
+    };
+
+    filter.onstop = async (event) => {
+      let str = "";
+      if (data.length == 1) {
+        str = decoder.decode(data[0]);
       }
-    }
-    let json = JSON.parse(str);
+      else {
+        for (let i = 0; i < data.length; i++) {
+          let stream = (i == data.length - 1) ? false : true;
+          str += decoder.decode(data[i], {stream});
+        }
+      }
+      let json = JSON.parse(str);
 
-    updatePageResultCount(json.searchResults.listResults);
-    let scrubbedJson = scrubHiddenListings(json);
-    str = JSON.stringify(scrubbedJson);
+      let hiddenZpids = await getHiddenZpids();
+      console.log(hiddenZpids);
 
-    filter.write(encoder.encode(str));
-    filter.close();
-  };
-}
+      updatePageResultCount(json.searchResults.listResults, hiddenZpids);
+      let scrubbedJson = scrubHiddenListings(json, hiddenZpids);
+      str = JSON.stringify(scrubbedJson);
 
-function contentAction(command) {
-  browser.tabs.query({
-    currentWindow: true,
-    active: true
-  }).then((tabs) => {
-    for(let tab of tabs) {
-      browser.tabs.sendMessage(tab.id, command)
-    }
-  })
-}
-
-function scrubHiddenListings(json) {
-  if(json.searchResults.listResults) {
-    json.searchResults.listResults = json
-      .searchResults
-      .listResults
-      .filter(e => !hiddenZpids.includes(e.zpid));
+      filter.write(encoder.encode(str));
+      filter.close();
+    };
   }
 
-  json.searchResults.mapResults = json
-    .searchResults
-    .mapResults
-    .filter(e => !hiddenZpids.includes(e.zpid));
+  function contentAction(command) {
+    browser.tabs.query({
+      currentWindow: true,
+      active: true
+    }).then((tabs) => {
+      for(let tab of tabs) {
+        browser.tabs.sendMessage(tab.id, command)
+      }
+    })
+  }
 
-  return json;
-}
-
-function updatePageResultCount(listResults) {
-  let hiddenResultCount = listResults.reduce((count, e) => {
-    return hiddenZpids.includes(e.zpid) ? count += 1 : count
-  }, 0);
-
-  contentAction({
-    type: 'updatePageResultCount',
-    data: {
-      totalCount: listResults.length,
-      hiddenCount: hiddenResultCount
+  function scrubHiddenListings(json, hiddenZpids) {
+    if(json.searchResults.listResults) {
+      json.searchResults.listResults = json
+        .searchResults
+        .listResults
+        .filter(e => !hiddenZpids.includes(e.zpid));
     }
-  });
-}
 
-browser.webRequest.onBeforeRequest.addListener(
-  listener,
-  {
-    urls: ["*://*.zillow.com/search/GetSearchPageState.htm*"],
-    types: ["xmlhttprequest"]
-  },
-  ["blocking"]
-);
+    json.searchResults.mapResults = json
+      .searchResults
+      .mapResults
+      .filter(e => !hiddenZpids.includes(e.zpid));
+
+    return json;
+  }
+
+  function updatePageResultCount(listResults, hiddenZpids) {
+    let hiddenResultCount = listResults.reduce((count, e) => {
+      return hiddenZpids.includes(e.zpid) ? count += 1 : count
+    }, 0);
+
+    contentAction({
+      type: 'updatePageResultCount',
+      data: {
+        totalCount: listResults.length,
+        hiddenCount: hiddenResultCount
+      }
+    });
+  }
+
+  function getHiddenZpids() {
+    return browser.storage.local.get('hiddenZpids').then(items => {
+      return items.hiddenZpids;
+    });
+  }
+})();
