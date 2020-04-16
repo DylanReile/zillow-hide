@@ -1,9 +1,6 @@
 (function() {
   alert('background script registered');
 
-  //let hiddenZpids = ["2097205534", "23262737", "67037838"];
-  //browser.storage.local.set({hiddenZpids: hiddenZpids});
-
   browser.webRequest.onBeforeRequest.addListener(
     listener,
     {
@@ -93,5 +90,11 @@
     return browser.storage.local.get('hiddenZpids').then(items => {
       return items.hiddenZpids;
     });
+  }
+
+  async function hideZpid(zpid) {
+    let existingZpids = await getHiddenZpids();
+    let uniqueZpids = Array.from(new Set([...existingZpids, zpid]));
+    browser.storage.local.set({hiddenZpids: uniqueZpids});
   }
 })();
