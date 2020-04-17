@@ -1,5 +1,6 @@
 {
   "description": "Zillow's missing hide feature",
+  "homepage_url": "https://github.com/dylanreile/zillow-hide",
   "manifest_version": 2,
   "name": "Zillow hide",
   "version": "1.0",
@@ -17,6 +18,9 @@
       "matches": ["*://*.zillow.com/*"],
       "js": ["content.js"]
     }
+  ],
+  "web_accessible_resources": [
+    "icons/trashcan.svg"
   ],
   "browser_specific_settings": {
     "gecko": {

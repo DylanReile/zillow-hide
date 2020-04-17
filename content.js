@@ -1,5 +1,6 @@
 (function() {
   console.log('content script injected');
+  injectTrashcans();
   browser.runtime.onMessage.addListener(executor);
 
   function executor(command) {
@@ -21,5 +22,17 @@
 
   function log(data) {
     console.log(data);
+  }
+
+  function injectTrashcans() {
+    let trashcan = document.createElement('img');
+    trashcan.setAttribute('src', browser.extension.getURL('icons/trashcan.svg'));
+    trashcan.style.height = '50px';
+    let cards = document.querySelectorAll(
+      ':not(.search-list-relaxed-results) > .photo-cards .list-card'
+    );
+    for (let card of cards) {
+      card.appendChild(trashcan.cloneNode());
+    }
   }
 })();
