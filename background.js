@@ -36,10 +36,13 @@
       let hiddenZpids = await getHiddenZpids();
       console.log(hiddenZpids);
 
-      updatePageResultCount(json.searchResults.listResults, hiddenZpids);
-      let scrubbedJson = scrubHiddenListings(json, hiddenZpids);
-      str = JSON.stringify(scrubbedJson);
+      if(json.searchResults.listResults) {
+        updatePageResultCount(json.searchResults.listResults, hiddenZpids);
+        scrubListResults(json, hiddenZpids);
+      }
+      scrubMapResults(json, hiddenZpids);
 
+      str = JSON.stringify(json);
       filter.write(encoder.encode(str));
       filter.close();
     };
@@ -56,20 +59,18 @@
     })
   }
 
-  function scrubHiddenListings(json, hiddenZpids) {
-    if(json.searchResults.listResults) {
-      json.searchResults.listResults = json
-        .searchResults
-        .listResults
-        .filter(e => !hiddenZpids.includes(e.zpid));
-    }
-
+  function scrubMapResults(json, hiddenZpids) {
     json.searchResults.mapResults = json
       .searchResults
       .mapResults
       .filter(e => !hiddenZpids.includes(e.zpid));
+  }
 
-    return json;
+  function scrubListResults(json, hiddenZpids) {
+    json.searchResults.listResults = json
+      .searchResults
+      .listResults
+      .filter(e => !hiddenZpids.includes(e.zpid));
   }
 
   function updatePageResultCount(listResults, hiddenZpids) {
@@ -88,7 +89,7 @@
 
   function getHiddenZpids() {
     return browser.storage.local.get('hiddenZpids').then(items => {
-      return items.hiddenZpids;
+      return items.hiddenZpids || [];
     });
   }
 
