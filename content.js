@@ -37,9 +37,9 @@
   function trashcanMarkup() {
     let iconUrl = browser.extension.getURL('icons/trashcan.svg');
     return `
-      <button>
-        <span>
-          <img src="${iconUrl}" class="zillow-hide__trashcan">
+      <button class="zillow-hide__trashcan__button">
+        <span class="zillow-hide__trashcan__content">
+          <img src="${iconUrl}" class="zillow-hide__trashcan__icon">
         </span>
       </button>
     `;
