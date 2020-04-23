@@ -27,7 +27,7 @@
   function injectTrashcans() {
     let trashcan = document.createElement('img');
     trashcan.setAttribute('src', browser.extension.getURL('icons/trashcan.svg'));
-    trashcan.style.height = '50px';
+    trashcan.classList.add('zillow-hide-trashcan');
     let cards = document.querySelectorAll(
       ':not(.search-list-relaxed-results) > .photo-cards .list-card'
     );

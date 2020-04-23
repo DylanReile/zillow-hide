@@ -16,7 +16,8 @@
   "content_scripts": [
     {
       "matches": ["*://*.zillow.com/*"],
-      "js": ["content.js"]
+      "js": ["content.js"],
+      "css": ["stylesheets/content.css"]
     }
   ],
   "web_accessible_resources": [
