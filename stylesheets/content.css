@@ -1,7 +1,4 @@
-body {
-  color: red !important;
-  background: red !important;
-}
-p {
-  color: red !important;
+.zillow-hide__trashcan {
+  height: 34px;
+  width: 34px;
 }

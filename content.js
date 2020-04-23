@@ -26,13 +26,22 @@
 
   function injectTrashcans() {
     let trashcan = document.createElement('img');
-    trashcan.setAttribute('src', browser.extension.getURL('icons/trashcan.svg'));
-    trashcan.classList.add('zillow-hide-trashcan');
     let cards = document.querySelectorAll(
       ':not(.search-list-relaxed-results) > .photo-cards .list-card'
     );
     for (let card of cards) {
-      card.appendChild(trashcan.cloneNode());
+      card.insertAdjacentHTML('beforeend', trashcanMarkup());
     }
+  }
+
+  function trashcanMarkup() {
+    let iconUrl = browser.extension.getURL('icons/trashcan.svg');
+    return `
+      <button>
+        <span>
+          <img src="${iconUrl}" class="zillow-hide__trashcan">
+        </span>
+      </button>
+    `;
   }
 })();
