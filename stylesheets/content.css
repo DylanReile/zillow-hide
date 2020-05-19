@@ -1,21 +1,14 @@
 .zillow-hide__trashcan__button {
-  z-index: 1;
-  background: 0 0;
-  border: 0;
+  width: -moz-fit-content;
+  border: none;
+  padding: 0;
   position: absolute;
-  right: 0;
-  top: 0;
-  align-self: start;
-  justify-self: start;
-}
-
-.zillow-hide__trashcan__content {
-  display: block;
-  width: 440px;
-  padding: 8px 8px 5px;
+  right: 55px;
+  top: 6px;
+  background: none;
 }
 
 .zillow-hide__trashcan__icon {
-  height: 34px;
-  width: 34px;
+  width: 30px;
+  height: 30px;
 }
