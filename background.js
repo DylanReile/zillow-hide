@@ -46,6 +46,7 @@
       filter.write(encoder.encode(str));
       filter.close();
     };
+    contentAction({type: 'injectTrashcans'});
   }
 
   function contentAction(command) {

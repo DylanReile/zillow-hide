@@ -11,6 +11,9 @@
       case 'log':
         log(command.data);
         break;
+      case 'injectTrashcans':
+        injectTrashcans();
+        break;
     }
   }
 
