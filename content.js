@@ -1,6 +1,6 @@
 (function() {
-  console.log('content script injected');
   injectTrashcans();
+  injectTrashcansAsNeeded();
   browser.runtime.onMessage.addListener(executor);
 
   function executor(command) {
@@ -10,9 +10,6 @@
         break;
       case 'log':
         log(command.data);
-        break;
-      case 'injectTrashcans':
-        injectTrashcans();
         break;
     }
   }
@@ -25,6 +22,13 @@
 
   function log(data) {
     console.log(data);
+  }
+
+  function injectTrashcansAsNeeded() {
+    let observee = document.querySelector('#grid-search-results');
+    let config = { childList: true };
+    let observer = new MutationObserver(injectTrashcans);
+    observer.observe(observee, config);
   }
 
   function injectTrashcans() {
