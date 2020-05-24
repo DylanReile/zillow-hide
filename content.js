@@ -1,7 +1,11 @@
 (function() {
-  injectTrashcans();
   injectTrashcansAsNeeded();
-  browser.runtime.onMessage.addListener(executor);
+  registerDelgatedTrashcanClickListener();
+  registerContentCommandListener();
+
+  function registerContentCommandListener() {
+    browser.runtime.onMessage.addListener(executor);
+  }
 
   function executor(command) {
     switch(command.type) {
@@ -25,6 +29,7 @@
   }
 
   function injectTrashcansAsNeeded() {
+    injectTrashcans();
     let observee = document.querySelector('#grid-search-results');
     let config = { childList: true };
     let observer = new MutationObserver(injectTrashcans);
@@ -42,6 +47,17 @@
         card.insertAdjacentHTML('beforeend', trashcanMarkup());
       }
     }
+  }
+
+  function registerDelgatedTrashcanClickListener() {
+    let listResults = document.querySelector('#search-page-list-container');
+    listResults.addEventListener('click', (e) => {
+      if(e.target.className === 'zillow-hide__trashcan__button') {
+        e.stopPropagation();
+        let zpid = e.target.closest('.list-card').id;
+        console.log(`clicked trashcan for zpid ${zpid}`);
+      }
+    });
   }
 
   function trashcanMarkup() {

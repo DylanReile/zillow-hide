@@ -3,9 +3,12 @@
   border: none;
   padding: 0;
   position: absolute;
-  right: 55px;
+  right: 60px;
   top: 6px;
   background: none;
+}
+.zillow-hide__trashcan__button > * {
+  pointer-events: none;
 }
 
 .zillow-hide__trashcan__icon {
