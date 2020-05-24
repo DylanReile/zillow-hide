@@ -1,16 +1,31 @@
 (function() {
-  alert('background script registered');
+  interceptXhrListingHydration();
+  listenToCommandsFromContentScript();
 
-  browser.webRequest.onBeforeRequest.addListener(
-    listener,
-    {
-      urls: ["*://*.zillow.com/search/GetSearchPageState.htm*"],
-      types: ["xmlhttprequest"]
-    },
-    ["blocking"]
-  );
+  function interceptXhrListingHydration() {
+    browser.webRequest.onBeforeRequest.addListener(
+      xhrListener,
+      {
+        urls: ["*://*.zillow.com/search/GetSearchPageState.htm*"],
+        types: ["xmlhttprequest"]
+      },
+      ["blocking"]
+    );
+  }
 
-  function listener(details) {
+  function listenToCommandsFromContentScript() {
+    browser.runtime.onMessage.addListener(executor);
+  }
+
+  function executor(command) {
+    switch(command.type) {
+      case 'hideZpid':
+        hideZpid(command.data);
+        break;
+    }
+  }
+
+  function xhrListener(details) {
     let filter = browser.webRequest.filterResponseData(details.requestId);
     let decoder = new TextDecoder("utf-8", {fatal: true});
     let encoder = new TextEncoder();
@@ -34,7 +49,6 @@
       let json = JSON.parse(str);
 
       let hiddenZpids = await getHiddenZpids();
-      console.log(hiddenZpids);
 
       if(json.searchResults.listResults) {
         updatePageResultCount(json.searchResults.listResults, hiddenZpids);

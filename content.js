@@ -1,9 +1,9 @@
 (function() {
   injectTrashcansAsNeeded();
   registerDelgatedTrashcanClickListener();
-  registerContentCommandListener();
+  listenToCommandsFromBackgroundScript();
 
-  function registerContentCommandListener() {
+  function listenToCommandsFromBackgroundScript() {
     browser.runtime.onMessage.addListener(executor);
   }
 
@@ -54,10 +54,20 @@
     listResults.addEventListener('click', (e) => {
       if(e.target.className === 'zillow-hide__trashcan__button') {
         e.stopPropagation();
-        let zpid = e.target.closest('.list-card').id;
-        console.log(`clicked trashcan for zpid ${zpid}`);
+        let card = e.target.closest('.list-card');
+        card.setAttribute('hidden', true);
+
+        let zpid = card.id.split('_')[1];
+        backgroundAction({
+          type: 'hideZpid',
+          data: zpid
+        });
       }
     });
+  }
+
+  function backgroundAction(command) {
+    browser.runtime.sendMessage(command);
   }
 
   function trashcanMarkup() {
