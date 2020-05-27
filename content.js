@@ -1,6 +1,6 @@
 (function() {
   injectTrashcansAsNeeded();
-  registerDelgatedTrashcanClickListener();
+  registerTrashcanClickListener();
   listenToCommandsFromBackgroundScript();
 
   function listenToCommandsFromBackgroundScript() {
@@ -49,25 +49,52 @@
     }
   }
 
-  function registerDelgatedTrashcanClickListener() {
+  function registerTrashcanClickListener() {
     let listResults = document.querySelector('#search-page-list-container');
     listResults.addEventListener('click', (e) => {
       if(e.target.className === 'zillow-hide__trashcan__button') {
         e.stopPropagation();
         let card = e.target.closest('.list-card');
-        card.setAttribute('hidden', true);
-
         let zpid = card.id.split('_')[1];
         backgroundAction({
           type: 'hideZpid',
           data: zpid
         });
+
+        forceRedraw();
       }
     });
   }
 
   function backgroundAction(command) {
     browser.runtime.sendMessage(command);
+  }
+
+  function forceRedraw() {
+    // This is a hack that works by changing the value in the "sort by"
+    // dropdown, then changing it back. This triggers a Redux event, forcing
+    // React to rehydrate its components. It happens so quickly that nothing
+    // odd appears to happen to the user.
+    let sortByCurrentOptionText = document
+      .querySelector('.sort-popover span')
+      .textContent;
+
+    let sortByOptions = Array.from(
+      document
+      .querySelector('.sort-popover .dropdown')
+      .children
+    );
+
+    let sortByCurrentOption = sortByOptions.find(option => {
+      return option.textContent === sortByCurrentOptionText
+    });
+
+   let sortByDifferentOption = sortByOptions.find(option => {
+    return option.textContent !== sortByCurrentOptionText
+   });
+
+   sortByDifferentOption.click();
+   sortByCurrentOption.click();
   }
 
   function trashcanMarkup() {

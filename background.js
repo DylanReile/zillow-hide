@@ -1,4 +1,5 @@
 (function() {
+  alert('background script injected');
   interceptXhrListingHydration();
   listenToCommandsFromContentScript();
 
@@ -110,6 +111,6 @@
   async function hideZpid(zpid) {
     let existingZpids = await getHiddenZpids();
     let uniqueZpids = Array.from(new Set([...existingZpids, zpid]));
-    browser.storage.local.set({hiddenZpids: uniqueZpids});
+    await browser.storage.local.set({hiddenZpids: uniqueZpids});
   }
 })();
