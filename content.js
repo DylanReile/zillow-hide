@@ -1,4 +1,5 @@
 (function() {
+  window.addEventListener('load', forceRedraw);
   injectTrashcansAsNeeded();
   registerTrashcanClickListener();
   listenToCommandsFromBackgroundScript();
